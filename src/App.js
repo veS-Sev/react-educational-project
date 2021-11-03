@@ -1,13 +1,27 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import TodoList from './Todo/TodoList'
 import Context from './context'
 import AddTodo from './Todo/AddTodo'
+import Loader from './Loader'
+
 function App() {
-  const [todos,setTodos] = React.useState([
-{ id:1, completed:false, title:'Купить что-нидь сладкого'},
-{ id:2, completed:true, title:'Купить что-нидь вкусного'},
-{ id:3, completed:false, title:'Купить что-нидь острого'},
-])
+  const [todos,setTodos] = React.useState([])
+  const [loading,setLoading] = React.useState(true)
+useEffect(()=>{
+  // этот код с https://jsonplaceholder.typicode.com/ с главной страницы 
+  // убрали с конца /1. Добавили ?_limit=5
+  fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+  .then(response => response.json())
+  // json поменяли на todos, console.log(json) на {setTodos(todos)}
+  // и добавили setTimeout
+  .then(todos => {
+    setTimeout(()=>{ 
+      setTodos(todos) 
+      setLoading(false)},2000)
+     
+  
+  })
+},[])
 
 function toggleTodo(id){
   setTodos(
@@ -37,7 +51,14 @@ function addTodo(title){
   <div className='wrapper'> 
   <h1>React tutorial</h1> 
   <AddTodo onCreate={addTodo}/>
-{todos.length ?<TodoList todos={todos} onToggle={toggleTodo}/>: <p>No todos!</p>}
+
+  {loading && <Loader/>}
+{todos.length ?(
+<TodoList todos={todos} onToggle={toggleTodo}/>
+): loading ? null :(
+<p>No todos!</p>
+)
+}
   
   </div>
  </Context.Provider>
