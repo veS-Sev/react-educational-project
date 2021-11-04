@@ -1,8 +1,14 @@
 import React, {useEffect} from 'react'
 import TodoList from './Todo/TodoList'
 import Context from './context'
-import AddTodo from './Todo/AddTodo'
 import Loader from './Loader'
+
+// вроде как на продакшн лучше так не делать)
+const AddTodo =React.lazy(()=> new Promise(resolve =>{
+  setTimeout(()=>{
+resolve(import('./Todo/AddTodo'))
+  },3000)
+}))
 
 function App() {
   const [todos,setTodos] = React.useState([])
@@ -15,9 +21,11 @@ useEffect(()=>{
   // json поменяли на todos, console.log(json) на {setTodos(todos)}
   // и добавили setTimeout
   .then(todos => {
-    setTimeout(()=>{ 
-      setTodos(todos) 
-      setLoading(false)},2000)
+    setTimeout(()=>{
+      setTodos(todos)  
+      setLoading(false)
+      }
+      ,2000)
      
   
   })
@@ -50,7 +58,10 @@ function addTodo(title){
   <Context.Provider value={{ removeTodo }}>
   <div className='wrapper'> 
   <h1>React tutorial</h1> 
-  <AddTodo onCreate={addTodo}/>
+  <React.Suspense fallback={<p>Loading....</p>}>
+    <AddTodo onCreate={addTodo}/>
+  </React.Suspense>
+  
 
   {loading && <Loader/>}
 {todos.length ?(
